@@ -50,10 +50,20 @@ class Point:
         raise NotImplementedError
 
     def __add__(self, other):
-        return Point(*(x + y for x, y in zip(self._coords, other._coords)))
+        if isinstance(other, Number):
+            return Point(*(x + other for x in self._coords))
+        elif isinstance(other, Point):
+            return Point(*(x + y for x, y in zip(self._coords, other._coords)))
+        else:
+            raise TypeError("Unsupported type.")
 
     def __sub__(self, other):
-        return Point(*(x - y for x, y in zip(self._coords, other._coords)))
+        if isinstance(other, Number):
+            return Point(*(x - other for x in self._coords))
+        elif isinstance(other, Point):
+            return Point(*(x - y for x, y in zip(self._coords, other._coords)))
+        else:
+            raise TypeError("Unsupported type.")
 
     def __mul__(self, other):
         if isinstance(other, Number):
@@ -67,6 +77,9 @@ class Point:
     __rmul__ = __mul__
     # def __rmul__(self, other):
     #     return self.__mul__(other)
+
+    # Addition is commutative
+    __radd__ = __add__
 
     def __pow__(self, power, modulo=None):
         return Point(*(x ** power for x in self._coords))
@@ -91,6 +104,7 @@ class Point:
         :param other: Other vector (instance of Point).
         :return: Angle between self & other in radians.
         """
+        # TODO: generalize to n-dimensions
         return self.angle_between(Point(0, 1))
 
     def length(self):
@@ -126,11 +140,29 @@ class Point:
         return x1 * y2 - x2 * y1
 
     @classmethod
-    def from_polar(cls, r, angle):
+    def from_polar(cls, angle, r=1):
         x = r * math.cos(angle)
         y = r * math.sin(angle)
 
         return Point(x, y)
+
+    def to_polar(self):
+        r = self.length()
+        theta = math.atan2(self._coords[1], self._coords[0])
+
+        return r, theta
+
+    def rotate(self, angle):
+        """
+        Rotates point.
+        :param angle: Angle, in radians to rotate point.
+        :return: None
+        """
+
+        r, theta = self.to_polar()
+        return Point.from_polar(theta + angle, r)
+
+
 
 class Vector:
     __slots__ = ['_point', '_direction']
