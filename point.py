@@ -162,6 +162,9 @@ class Vector:
 
         return m, c
 
+    def __repr__(self):
+        return "Vector({!r}, {!r})".format(self._point, self._direction)
+
 
 
 

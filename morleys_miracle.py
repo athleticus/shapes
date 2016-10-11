@@ -51,14 +51,38 @@ class TriangleApp(tk.Frame):
         self._canvas.delete(tk.ALL)
         self._canvas.create_polygon(*(tuple(p) for p in self._points), fill='white')
 
+        outer_centres = []
+
         # Draw equilaterals
         for i, colour in enumerate(COLOURS):
             p1, p2, orientator = [self._points[(i + j) % len(self._points)] for
                                   j in range(3)]
             p3 = self.generate_equilateral(p1, p2, orientator)
+            p3 = Point(*p3)
 
-            sprite = self._canvas.create_polygon(tuple(p1), tuple(p2), p3,
+            d1 = p3-p1
+            a1 = math.atan2(d1[1], d1[0]) + math.pi/6
+
+            d2 = p3-p2
+            a2 = math.atan2(d2[1], d2[0]) - math.pi/6
+
+            print(a1, a2)
+
+
+            l1 = Vector(p1, Point.from_polar(200, a1))
+            l2 = Vector(p2, Point.from_polar(200, a2))
+
+            print(l1, l2)
+
+            centre = l1.intersects2d(l2)
+            outer_centres.append(centre)
+
+            sprite = self._canvas.create_polygon(tuple(p1), tuple(p2), tuple(p3),
                                                  fill=colour, outline='black')
+
+
+
+        self._canvas.create_polygon(*(tuple(p) for p in outer_centres), fill='', outline='black')
 
         # Draw arcs
         arc_size = 0.3
